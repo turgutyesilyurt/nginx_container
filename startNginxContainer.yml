@@ -1,0 +1,77 @@
+---
+# Written By: Turgut Yesilyurt
+#
+#
+
+- name: This is a master NGINX Container playbook
+  hosts: localhost
+  connection: local
+  tasks:
+    - debug:
+        msg: "Before installing nginx"
+
+    - import_role:
+        name: ../nginx/roles/deploy-nginx 
+    
+    - name: Download CentOS
+      shell: docker pull centos
+      register: pull_output
+
+    - name: print
+      debug: msg={{ pull_output.stdout }}  
+
+    - name: Download Debian 
+      shell: docker pull debian 
+      register: pull_output
+
+    - name: print
+      debug: msg={{ pull_output.stdout }}
+
+- name: Start the docker containers
+  hosts: localhost
+  connection: local
+  vars:
+    inventory:
+      - name: centos 
+        image: "centos:latest"
+
+      - name: debian
+        image: "debian:latest"
+  tasks:
+    - name: start centos
+      shell: docker container run -it --hostname centos -p 8000:80 --name centos -d centos:latest
+
+    - name: start debian
+      shell: docker container run -it --hostname debian -p 8080:80 --name debian -d debian:latest
+
+    - name: add container to inventory
+      add_host:
+        name: centos 
+        ansible_connection: docker
+        ansible_docker_extra_args: "-H=tcp://0.0.0.0:2375"
+        #ansible_user: nginx 
+      changed_when: false
+
+    - name: add container to inventory
+      add_host:
+        name: debian 
+        ansible_connection: docker
+        ansible_docker_extra_args: "-H=tcp://0.0.0.0:2375"
+        #ansible_user: nginx
+      changed_when: false
+
+- name: install nginx on docker containers
+  hosts: centos, debian
+  #hosts: centos
+  tasks:
+    - name: get the container host name
+      shell: uptime
+      register: cont_uptime
+
+    - name: print
+      debug: msg="{{ cont_uptime.stdout }}"  
+
+  roles:
+    - { role: ../nginx/roles/deploy-nginx }
+
+

@@ -1,0 +1,11 @@
+---
+- name: plays in containers
+  hosts: containers 
+  gather_facts: true
+  tasks:
+    - name: get hostname
+      shell: hostname
+      register: hname
+
+    - name: print
+      debug: msg="{{ hname }}"

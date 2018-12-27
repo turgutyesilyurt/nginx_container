@@ -1,0 +1,4 @@
+[containers]
+centos ansible_connection=docker ansible_docker_extra_args="-H=tcp://0.0.0.0:2375" 
+debian ansible_connection=docker ansible_docker_extra_args="-H=tcp://0.0.0.0:2375" 
+

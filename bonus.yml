@@ -1,0 +1,24 @@
+---
+- name: plays in containers
+  hosts: localhost 
+  gather_facts: false 
+  tasks:
+    - name: commit centos
+      shell: docker commit centos centos:version1
+      register: output
+
+    - name: print
+      debug: msg="{{ output.stdout }}"
+
+    - name: commit debian 
+      shell: docker commit debian debian:version1
+      register: output
+
+    - name: print
+      debug: msg="{{ output.stdout }}"
+
+    - name: stop running centos
+      shell: docker stop centos
+   
+    - name: stop running debian
+      shell: docker stop debian 
